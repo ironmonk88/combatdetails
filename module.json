@@ -1,0 +1,25 @@
+{
+	"name": "combatdetails",
+	"title": "Combat Details",
+	"description": "Things to make the flow of combat easier",
+	"version": "1.0.0",
+	"author": "Michael Weisner",
+	"socket": true,
+	"languages": [
+		{
+			"lang": "en",
+			"name": "English",
+			"path": "lang/en.json"
+		}
+	],
+	"esmodules": [
+		"combatdetails.js"
+	],
+	"styles" : [],
+	"packs": [],
+	"url" : "",
+	"download" : "",
+	"manifest" : "",
+	"minimumCoreVersion": "0.7.1",
+  	"compatibleCoreVersion": "0.7.5"
+}
