@@ -1,0 +1,10 @@
+{
+	"CombatDetails.Turn" : "It's your turn, what would you like to do?",
+	"CombatDetails.Next" : "Get ready, you're up next",
+	"CombatDetails.ShowNextUp": "Show 'Next Up' notification",
+	"CombatDetails.ShowNextUpHint": "Show notification to the players that their turn is next",
+  "CombatDetails.ShowEndTurnDialog": "Show End Turn Dialog",
+  "CombatDetails.ShowEndTurnDialogHint": "Displays a Dialog to players on their turn that provides a button to end their current turn",
+	"CombatDetails.Volume": "Volume",
+	"CombatDetails.VolumeHint": "Set the overall volume of the module"
+}
