@@ -13,7 +13,8 @@
 		}
 	],
 	"esmodules": [
-		"combatdetails.js"
+		"combatdetails.js",
+		"settings.js"
 	],
 	"styles" : [],
 	"packs": [],
