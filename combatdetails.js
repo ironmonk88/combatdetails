@@ -1,40 +1,20 @@
+import { registerSettings } from "./settings.js";
 import { gsap } from "/scripts/greensock/esm/all.js";
 
-const registerSettings = () => {
-  // module settings
-  game.settings.register("combatdetails", "shownextup", {
-    name: "CombatDetails.ShowNextUp",
-    hint: "CombatDetails.ShowNextUpHint",
-    scope: "world",
-    config: true,
-    default: true,
-    type: Boolean,
-  });
-  game.settings.register("combatdetails", "endturndialog", {
-    name: "CombatDetails.ShowEndTurnDialog",
-    hint: "CombatDetails.ShowEndTurnDialogHint",
-    scope: "world",
-    config: true,
-    default: false,
-    type: Boolean,
-  });
-  game.settings.register("combatdetails", "volume", {
-    name: "CombatDetails.Volume",
-    hint: "CombatDetails.VolumeHint",
-    scope: "client",
-    config: true,
-    range: {
-      min: 0,
-      max: 100,
-      step: 10,
-    },
-    default: 60,
-    type: Number,
-  });
+export let debug = (...args) => { if (debugEnabled > 1)
+    console.log("DEBUG: combatdetails | ", ...args); };
+export let log = (...args) => console.log("combatdetails | ", ...args);
+export let warn = (...args) => { if (debugEnabled > 0)
+    console.warn("combatdetails | ", ...args); };
+export let error = (...args) => console.error("combatdetails | ", ...args);
+export let i18n = key => {
+    return game.i18n.localize(key);
 };
-
-const volume = () => {
+export let volume = () => {
   return game.settings.get("combatdetails", "volume") / 100.0;
+};
+export let combatposition = () => {
+  return game.settings.get("combatdetails", "combat-position");
 };
 
 /**
@@ -135,6 +115,7 @@ var KHelpers = (function () {
  */
 class CombatDetails {
   static EndTurnDialog = [];
+  static tracker = false;
 
   static async closeEndTurnDialog() {
     // go through all dialogs that we've opened and closed them
@@ -173,6 +154,7 @@ class CombatDetails {
    * JQuery stripping
    */
   static init() {
+	  log("initializing");
     // element statics
     CombatDetails.READY = true;
     // sound statics
@@ -180,18 +162,6 @@ class CombatDetails {
     CombatDetails.NEXT_SOUND = "modules/combatdetails/sounds/next.wav";
     CombatDetails.ROUND_SOUND = "modules/combatdetails/sounds/round.wav";
     CombatDetails.ACK_SOUND = "modules/combatdetails/sounds/ack.wav";
-    // language specific fonts
-    switch (game.i18n.lang) {
-      case "en":
-        KHelpers.addClass(label, "speedp");
-        label.style["font-size"] = "124px";
-        //label.style.top = "15px";
-        break;
-      default:
-        KHelpers.addClass(label, "ethnocentric");
-        label.style["font-size"] = "90px";
-        break;
-    }
 
     registerSettings();
   }
@@ -200,7 +170,7 @@ class CombatDetails {
     if (!CombatDetails.READY) {
       CombatDetails.init();
     }
-    ui.notifications.info(game.i18n.localize("CombatDetails.Turn"));
+    ui.notifications.warn(i18n("CombatDetails.Turn"));
 
     // play a sound, meep meep!
 	if(volume() > 0)
@@ -208,7 +178,7 @@ class CombatDetails {
   }
 
   static doDisplayNext() {
-    if (game.settings.get("combatdetails", "disablenextup")) {
+    if (!game.settings.get("combatdetails", "shownextup")) {
       return;
     }
 
@@ -216,7 +186,7 @@ class CombatDetails {
       CombatDetails.init();
     }
 
-    ui.notifications.info(game.i18n.localize("CombatDetails.Next"));
+    ui.notifications.info(i18n("CombatDetails.Next"));
     // play a sound, beep beep!
 	if(volume() > 0)
 		AudioHelper.play({ src: CombatDetails.NEXT_SOUND, volume: volume() });
@@ -255,12 +225,32 @@ class CombatDetails {
     }
   }
 
+    static repositionCombat(app) {
+        //we want to start the dialog in a different corner
+        let sidebar = document.getElementById("sidebar");
+        let players = document.getElementById("players");
+
+        app.position.left = (combatposition().endsWith('left') ? 120 : (sidebar.offsetLeft - app.position.width));
+        app.position.top = (combatposition().startsWith('top') ?
+            (combatposition().endsWith('left') ? 70 : (sidebar.offsetTop - 3)) :
+            (combatposition().endsWith('left') ? (players.offsetTop - app.position.height - 3) : (sidebar.offsetTop + sidebar.offsetHeight - app.position.height - 3)));
+        $(app._element).css({ top: app.position.top, left: app.position.left });
+    }
+
 }
 
 /**
  * Assorted hooks
  */
-
+/* ------------------------------------ */
+/* Initialize module					*/
+/* ------------------------------------ */
+Hooks.once('init', async function () {
+    log('Initializing Combat Details');
+    // Assign custom classes and constants here
+    // Register custom module settings
+    CombatDetails.init();
+});
 /**
  * Handle combatant update
  */
@@ -295,32 +285,55 @@ Hooks.on("addCombatant", function (context, parentId, data) {
 /**
  * Combat update hook
  */
+
+Hooks.on("deleteCombat", function () {
+    CombatDetails.tracker = false;   //if the combat gets deleted, make sure to clear this out so that the next time the combat popout gets rendered it repositions the dialog
+});
+
 Hooks.on("updateCombat", function (data, delta) {
   CombatDetails.checkCombatTurn();
 
-  console.log("update combat", data);
+	log("update combat", data);
+	if(game.settings.get("combatdetails", "opencombat") && delta.round === 1 && delta.turn === 0){
+		//new combat, pop it out
+		const tabApp = ui["combat"];
+		tabApp.renderPopout(tabApp);
+		
+        if (ui.sidebar.activeTab !== "chat")
+            ui.sidebar.activateTab("chat");
+    }
 
-  if (!game.user.isGM && Object.keys(delta).some((k) => k === "round")) {
-    AudioHelper.play({
-      src: CombatDetails.ROUND_SOUND,
-      volume: volume(),
-    });
-  }
+    if (combatposition() !== '' && delta.active === true) {
+        //+++ make sure if it's not this players turn and it's not the GM to add padding for the button at the bottom
+        CombatDetails.tracker = false;   //delete this so that the next render will reposition the popout, changin between combats changes the height
+    }
+
+	if (!game.user.isGM && Object.keys(delta).some((k) => k === "round")) {
+		AudioHelper.play({
+		  src: CombatDetails.ROUND_SOUND,
+		  volume: volume()
+		});
+	}
 });
 
 /**
  * Ready hook
  */
 Hooks.on("ready", function () {
-  CombatDetails.init();
-
   //check if it's our turn! since we're ready
-  CombatReady.checkCombatTurn();
+  CombatDetails.checkCombatTurn();
 });
 
-/**
- * Init hook
- */
-Hooks.on("init", function () {
-  $.log("Combat Details loading");
+Hooks.on('renderCombatTracker', async (app, html, options) => {
+	if(!CombatDetails.tracker && app.options.id == "combat-popout"){
+		CombatDetails.tracker = true;
+		
+		if(combatposition() !== ''){
+            CombatDetails.repositionCombat(app);
+		}
+	}
+});
+
+Hooks.on('closeCombatTracker', async (app, html) => {
+	CombatDetails.tracker = false;
 });
