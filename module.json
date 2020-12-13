@@ -17,9 +17,9 @@
 	],
 	"styles" : [],
 	"packs": [],
-	"url" : "",
-	"download" : "",
-	"manifest" : "",
+	"url" : "https://github.com/ironmonk88/combatdetails",
+	"download" : "https://github.com/ironmonk88/combatdetails/archive/master.zip",
+	"manifest" : "https://raw.githubusercontent.com/ironmonk88/combatdetails/master/module.json",
 	"minimumCoreVersion": "0.7.1",
   	"compatibleCoreVersion": "0.7.5"
 }
