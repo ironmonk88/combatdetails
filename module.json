@@ -19,7 +19,7 @@
 	"packs": [],
 	"url" : "https://github.com/ironmonk88/combatdetails",
 	"download" : "https://github.com/ironmonk88/combatdetails/archive/1.0.0.zip",
-	"manifest" : "https://github.com/ironmonk88/combatdetails/blob/main/module.json",
+	"manifest" : "https://raw.githubusercontent.com/ironmonk88/combatdetails/main/module.json",
 	"minimumCoreVersion": "0.7.1",
   	"compatibleCoreVersion": "0.7.5"
 }
