@@ -18,14 +18,6 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
-	game.settings.register("combatdetails", "endturndialog", {
-		name: game.i18n.localize("CombatDetails.ShowEndTurnDialog"),
-		hint: game.i18n.localize("CombatDetails.ShowEndTurnDialogHint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
 	game.settings.register("combatdetails", "volume", {
 		name: game.i18n.localize("CombatDetails.Volume"),
 		hint: game.i18n.localize("CombatDetails.VolumeHint"),

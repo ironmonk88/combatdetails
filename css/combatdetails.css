@@ -1,0 +1,38 @@
+.control-icon.token-info-icon:empty {
+    visibility: hidden;
+}
+
+.control-icon.token-info-icon {
+    height: 40px;
+}
+
+.col.token-info-column-left {
+    justify-content: center;
+    padding-top: 0px !important;
+}
+
+.control-icon.active > img {
+    filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
+}
+
+#token-hud .status-effects {
+    top: -56px !important;
+    width: unset;
+    grid-template-columns: 25px 100px 25px 100px 25px 100px 25px 100px !important;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: left;
+}
+
+#token-hud .status-effects .effect-control.active + .effect-control-label {
+    color: #FFF;
+}
+
+#token-hud .status-effects .effect-control:hover + .effect-control-label, #token-hud .status-effects .effect-control-label {
+    cursor: pointer;
+    color: #CCC;
+}
+
+#token-hud .status-effects .effect-control-label:hover {
+    color: #d2d1d0 !important;
+}

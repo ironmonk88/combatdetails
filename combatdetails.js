@@ -1,11 +1,11 @@
 import { registerSettings } from "./settings.js";
-import { gsap } from "/scripts/greensock/esm/all.js";
-
-export let debug = (...args) => { if (debugEnabled > 1)
-    console.log("DEBUG: combatdetails | ", ...args); };
+export let debug = (...args) => {
+    if (debugEnabled > 1) console.log("DEBUG: combatdetails | ", ...args);
+};
 export let log = (...args) => console.log("combatdetails | ", ...args);
-export let warn = (...args) => { if (debugEnabled > 0)
-    console.warn("combatdetails | ", ...args); };
+export let warn = (...args) => {
+    if (debugEnabled > 0) console.warn("combatdetails | ", ...args);
+};
 export let error = (...args) => console.error("combatdetails | ", ...args);
 export let i18n = key => {
     return game.i18n.localize(key);
@@ -16,89 +16,6 @@ export let volume = () => {
 export let combatposition = () => {
   return game.settings.get("combatdetails", "combat-position");
 };
-
-/**
- * ============================================================
- * KHelpers Module
- *
- * Encapsulates a few handy helpers
- *
- *
- *
- *
- * ============================================================
- */
-var KHelpers = (function () {
-  function hasClass(el, className) {
-    return el.classList
-      ? el.classList.contains(className)
-      : new RegExp("\\b" + className + "\\b").test(el.className);
-  }
-
-  function addClass(el, className) {
-    if (el.classList) el.classList.add(className);
-    else if (!KHelpers.hasClass(el, className)) el.className += " " + className;
-  }
-
-  function removeClass(el, className) {
-    if (el.classList) el.classList.remove(className);
-    else
-      el.className = el.className.replace(
-        new RegExp("\\b" + className + "\\b", "g"),
-        ""
-      );
-  }
-
-  function offset(el) {
-    var rect = el.getBoundingClientRect(),
-      scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
-      scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
-  }
-
-  function style(el) {
-    return el.currentStyle || window.getComputedStyle(el);
-  }
-  function insertAfter(el, referenceNode) {
-    referenceNode.parentNode.insertBefore(el, referenceNode.nextSibling);
-  }
-  function insertBefore(el, referenceNode) {
-    referenceNode.parentNode.insertBefore(el, referenceNode);
-  }
-
-  /**
-   * Helper to grab a parent class via CSS ClassName
-   *
-   * @param elem (HTMLElement) : the element to start from.
-   * @param cls (String) : The class name to search for.
-   * @param depth (Number) : The maximum height/depth to look up.
-   * @returns (HTMLElement) : the parent class if found, or the current element if not.
-   *
-   * @private
-   */
-
-  function seekParentClass(elem, cls, depth) {
-    depth = depth || 5;
-    let el = elem;
-    for (let i = 0; i < depth; ++i) {
-      if (!el) break;
-      if (KHelpers.hasClass(el, cls)) break;
-      else el = el.parentNode;
-    }
-    return el;
-  }
-
-  return {
-    hasClass: hasClass,
-    addClass: addClass,
-    removeClass: removeClass,
-    offset: offset,
-    style: style,
-    insertAfter: insertAfter,
-    insertBefore: insertBefore,
-    seekParentClass: seekParentClass,
-  };
-})();
 
 /**
  * ============================================================
@@ -114,129 +31,91 @@ var KHelpers = (function () {
  * ============================================================
  */
 class CombatDetails {
-  static EndTurnDialog = [];
-  static tracker = false;
+    static tracker = false;
 
-  static async closeEndTurnDialog() {
-    // go through all dialogs that we've opened and closed them
-    for (let d of CombatDetails.EndTurnDialog) {
-      d.close();
+    static init() {
+	    log("initializing");
+        // element statics
+        CombatDetails.READY = true;
+        // sound statics
+        CombatDetails.TURN_SOUND = "modules/combatdetails/sounds/turn.wav";
+        CombatDetails.NEXT_SOUND = "modules/combatdetails/sounds/next.wav";
+        CombatDetails.ROUND_SOUND = "modules/combatdetails/sounds/round.wav";
+        CombatDetails.ACK_SOUND = "modules/combatdetails/sounds/ack.wav";
+
+        registerSettings();
     }
-    CombatDetails.EndTurnDialog.length = 0;
-  }
 
-  static showEndTurnDialog() {
-    CombatDetails.closeEndTurnDialog().then(() => {
-      let d = new Dialog(
-        {
-          title: "End Turn",
-          buttons: {
-            endturn: {
-              label: "End Turn",
-              callback: () => {
-                game.combats.active.nextTurn();
-              },
-            },
-          },
-        },
-        {
-          width: 30,
-          top: 5,
+    static doDisplayTurn() {
+        if (!CombatDetails.READY) {
+            CombatDetails.init();
         }
-      );
-      d.render(true);
-      // add dialog to array of dialogs. when using just a single object we'd end up with multiple dialogs
-      CombatDetails.EndTurnDialog.push(d);
-    });
-  }
+        ui.notifications.warn(i18n("CombatDetails.Turn"));
 
-  /**
-   * JQuery stripping
-   */
-  static init() {
-	  log("initializing");
-    // element statics
-    CombatDetails.READY = true;
-    // sound statics
-    CombatDetails.TURN_SOUND = "modules/combatdetails/sounds/turn.wav";
-    CombatDetails.NEXT_SOUND = "modules/combatdetails/sounds/next.wav";
-    CombatDetails.ROUND_SOUND = "modules/combatdetails/sounds/round.wav";
-    CombatDetails.ACK_SOUND = "modules/combatdetails/sounds/ack.wav";
-
-    registerSettings();
-  }
-
-  static doDisplayTurn() {
-    if (!CombatDetails.READY) {
-      CombatDetails.init();
-    }
-    ui.notifications.warn(i18n("CombatDetails.Turn"));
-
-    // play a sound, meep meep!
-	if(volume() > 0)
-		AudioHelper.play({ src: CombatDetails.TURN_SOUND, volume: volume() });
-  }
-
-  static doDisplayNext() {
-    if (!game.settings.get("combatdetails", "shownextup")) {
-      return;
+        // play a sound, meep meep!
+        if(volume() > 0)
+	        AudioHelper.play({ src: CombatDetails.TURN_SOUND, volume: volume() });
     }
 
-    if (!CombatDetails.READY) {
-      CombatDetails.init();
+    static doDisplayNext() {
+        if (!game.settings.get("combatdetails", "shownextup")) {
+            return;
+        }
+
+        if (!CombatDetails.READY) {
+            CombatDetails.init();
+        }
+
+        ui.notifications.info(i18n("CombatDetails.Next"));
+        // play a sound, beep beep!
+        if(volume() > 0)
+	        AudioHelper.play({ src: CombatDetails.NEXT_SOUND, volume: volume() });
     }
 
-    ui.notifications.info(i18n("CombatDetails.Next"));
-    // play a sound, beep beep!
-	if(volume() > 0)
-		AudioHelper.play({ src: CombatDetails.NEXT_SOUND, volume: volume() });
-  }
+    /**
+    * Check if the current combatant needs to be updated
+    */
+    static checkCombatTurn() {
+        let curCombat = game.combats.active;
 
-  /**
-   * Check if the current combatant needs to be updated
-   */
-  static checkCombatTurn() {
-    let curCombat = game.combats.active;
+        if (curCombat && curCombat.started) {
+            let entry = curCombat.combatant;
+            // next combatant
+            let nxtturn = (curCombat.turn || 0) + 1;
+            if (nxtturn > curCombat.turns.length - 1) nxtturn = 0;
+            let nxtentry = curCombat.turns[nxtturn];
 
-    if (curCombat && curCombat.started) {
-      let entry = curCombat.combatant;
-      // next combatant
-      let nxtturn = (curCombat.turn || 0) + 1;
-      if (nxtturn > curCombat.turns.length - 1) nxtturn = 0;
-      let nxtentry = curCombat.turns[nxtturn];
+            if (entry !== undefined) {
+                let isActive = entry.actor?._id === game.users.current.character?._id;
+                let isNext =
+                nxtentry.actor?._id === game.users.current.character?._id;
 
-      if (entry !== undefined) {
-        CombatDetails.closeEndTurnDialog().then(() => {
-          let isActive = entry.actor?._id === game.users.current.character?._id;
-          let isNext =
-            nxtentry.actor?._id === game.users.current.character?._id;
-
-          if (isActive) {
-            CombatDetails.doDisplayTurn();
-            if (game.settings.get("combatdetails", "endturndialog"))
-              CombatDetails.showEndTurnDialog();
-          } else if (isNext) {
-            CombatDetails.doDisplayNext();
-          }
-        });
-      }
-    } else if (!curCombat) {
-      CombatDetails.closeEndTurnDialog();
+                if (isActive) {
+                    CombatDetails.doDisplayTurn();
+                } else if (isNext) {
+                    CombatDetails.doDisplayNext();
+                }
+            }
+        }
     }
-  }
 
     static repositionCombat(app) {
         //we want to start the dialog in a different corner
         let sidebar = document.getElementById("sidebar");
         let players = document.getElementById("players");
 
+        let butHeight = (!game.user.isGM && !app.combat.getCombatantByToken(app.combat.current.tokenId).owner ? 40 : 0);
+
         app.position.left = (combatposition().endsWith('left') ? 120 : (sidebar.offsetLeft - app.position.width));
         app.position.top = (combatposition().startsWith('top') ?
             (combatposition().endsWith('left') ? 70 : (sidebar.offsetTop - 3)) :
-            (combatposition().endsWith('left') ? (players.offsetTop - app.position.height - 3) : (sidebar.offsetTop + sidebar.offsetHeight - app.position.height - 3)));
+            (combatposition().endsWith('left') ? (players.offsetTop - app.position.height - 3) : (sidebar.offsetTop + sidebar.offsetHeight - app.position.height - 3)) - butHeight);
         $(app._element).css({ top: app.position.top, left: app.position.left });
     }
 
+    static alterHUD() {
+        
+    }
 }
 
 /**
@@ -321,7 +200,8 @@ Hooks.on("updateCombat", function (data, delta) {
  */
 Hooks.on("ready", function () {
   //check if it's our turn! since we're ready
-  CombatDetails.checkCombatTurn();
+    CombatDetails.checkCombatTurn();
+    CombatDetails.alterHUD();
 });
 
 Hooks.on('renderCombatTracker', async (app, html, options) => {
@@ -336,4 +216,18 @@ Hooks.on('renderCombatTracker', async (app, html, options) => {
 
 Hooks.on('closeCombatTracker', async (app, html) => {
 	CombatDetails.tracker = false;
+});
+
+Hooks.on('renderTokenHUD', async (app, html, options) => {
+    $('.col.left .control-icon.target', html).insertBefore($('#token-hud .col.left .control-icon.config'));
+    $('.col.right .control-icon.effects .status-effects img', html).each(function () {
+        $('<div>')
+            .addClass('effect-control-label')
+            .html($(this).attr('title'))
+            .click(function () {
+                $(this).prev().click();
+            })
+            .insertAfter(this);
+
+    });
 });
