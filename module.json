@@ -2,7 +2,7 @@
 	"name": "combatdetails",
 	"title": "Combat Details",
 	"description": "Things to make the flow of combat easier",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"author": "Michael Weisner",
 	"socket": true,
 	"languages": [
@@ -13,15 +13,16 @@
 		}
 	],
 	"esmodules": [
-		"combatdetails.js"
+		"combatdetails.js",
+		"./apps/tokenbar.js"
 	],
 	"scripts": [
-		"./apps/tokenbar.js"
+		"settings.js"
 	],
 	"styles" : [ "css/combatdetails.css" ],
 	"packs": [],
 	"url" : "https://github.com/ironmonk88/combatdetails",
-	"download" : "https://github.com/ironmonk88/combatdetails/archive/1.0.3.zip",
+	"download" : "https://github.com/ironmonk88/combatdetails/archive/1.0.4.zip",
 	"manifest" : "https://raw.githubusercontent.com/ironmonk88/combatdetails/master/module.json",
 	"minimumCoreVersion": "0.7.1",
   	"compatibleCoreVersion": "0.7.5"

@@ -1,5 +1,3 @@
-import { log } from "./combatdetails.js";
-
 class TokenBar extends Application {
 	constructor(options) {
 	    super(options);
@@ -25,7 +23,7 @@ class TokenBar extends Application {
 	static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
         id: "tokenbar",
-        template: "templates/tokenbar.html",
+        template: "./modules/combatdetails/templates/tokenbar.html",
         popOut: false
     });
     }
@@ -178,6 +176,19 @@ class TokenBar extends Application {
     * @param event
     * @private
     */
+    async _onRequestRoll(event) {
+        event.preventDefault();
+
+        log('open request roll');
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+    * Handle left-click events to
+    * @param event
+    * @private
+    */
     async _onClickToken(event) {
         event.preventDefault();
         const li = event.currentTarget;
@@ -235,5 +246,5 @@ class TokenBar extends Application {
 }
 
 Hooks.on('renderTokenBar', () => {
-    CombatDetails.app.setPos().show();
+    CombatDetails.tokenbar.setPos().show();
 });

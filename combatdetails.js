@@ -33,7 +33,7 @@ CONFIG.controlIcons.visibility = "modules/conditions5e/icons/invisible.svg";
  *
  * ============================================================
  */
-class CombatDetails {
+export class CombatDetails {
     static tracker = false;
     static tokenbar = null;
 
@@ -42,7 +42,6 @@ class CombatDetails {
         // element statics
         CombatDetails.READY = true;
 
-        CombatDetails.tokenbar = new TokenBar().render(true);
         // sound statics
         CombatDetails.TURN_SOUND = "modules/combatdetails/sounds/turn.wav";
         CombatDetails.NEXT_SOUND = "modules/combatdetails/sounds/next.wav";
@@ -329,6 +328,8 @@ Hooks.on("updateCombat", function (data, delta) {
 Hooks.on("ready", function () {
   //check if it's our turn! since we're ready
     CombatDetails.checkCombatTurn();
+    CombatDetails.tokenbar = new TokenBar();
+    CombatDetails.tokenbar.render(true);
 });
 
 Hooks.on('renderCombatTracker', async (app, html, options) => {
