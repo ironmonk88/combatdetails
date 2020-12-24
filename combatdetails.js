@@ -1,4 +1,5 @@
 import { registerSettings } from "./settings.js";
+
 export let debug = (...args) => {
     if (debugEnabled > 1) console.log("DEBUG: combatdetails | ", ...args);
 };
@@ -17,6 +18,8 @@ export let combatposition = () => {
   return game.settings.get("combatdetails", "combat-position");
 };
 
+CONFIG.controlIcons.visibility = "modules/conditions5e/icons/invisible.svg";
+
 /**
  * ============================================================
  * CombatDetails class
@@ -32,18 +35,104 @@ export let combatposition = () => {
  */
 class CombatDetails {
     static tracker = false;
+    static tokenbar = null;
 
     static init() {
 	    log("initializing");
         // element statics
         CombatDetails.READY = true;
+
+        CombatDetails.tokenbar = new TokenBar().render(true);
         // sound statics
         CombatDetails.TURN_SOUND = "modules/combatdetails/sounds/turn.wav";
         CombatDetails.NEXT_SOUND = "modules/combatdetails/sounds/next.wav";
         CombatDetails.ROUND_SOUND = "modules/combatdetails/sounds/round.wav";
         CombatDetails.ACK_SOUND = "modules/combatdetails/sounds/ack.wav";
 
+        CONFIG.statusEffects = CONFIG.statusEffects.concat(
+            [
+                { "id": "charmed", "label": "COMBATDETAILS.StatusCharmed", "icon": "modules/combatdetails/icons/smitten.png" },
+                { "id": "exhausted", "label": "COMBATDETAILS.StatusExhausted", "icon": "modules/combatdetails/icons/oppression.png" },
+                { "id": "grappled", "label": "COMBATDETAILS.StatusGrappled", "icon": "modules/combatdetails/icons/grab.png" },
+                { "id": "incapacitated", "label": "COMBATDETAILS.StatusIncapacitated", "icon": "modules/combatdetails/icons/internal-injury.png" },
+                { "id": "invisible", "label": "COMBATDETAILS.StatusInvisible", "icon": "modules/combatdetails/icons/invisible.png" },
+                { "id": "petrified", "label": "COMBATDETAILS.StatusPetrified", "icon": "modules/combatdetails/icons/stone-pile.png" },
+                { "id": "hasted", "label": "COMBATDETAILS.StatusHasted", "icon": "modules/combatdetails/icons/running-shoe.png" },
+                { "id": "slowed", "label": "COMBATDETAILS.StatusSlowed", "icon": "modules/combatdetails/icons/turtle.png" },
+                { "id": "concentration", "label": "COMBATDETAILS.StatusConcentrating", "icon": "modules/combatdetails/icons/beams-aura.png" },
+                { "id": "rage", "label": "COMBATDETAILS.StatusRage", "icon": "modules/combatdetails/icons/enrage.png" },
+                { "id": "distracted", "label": "COMBATDETAILS.StatusDistracted", "icon": "modules/combatdetails/icons/distraction.png" },
+                { "id": "dodging", "label": "COMBATDETAILS.StatusDodging", "icon": "modules/combatdetails/icons/dodging.png" },
+                { "id": "disengage", "label": "COMBATDETAILS.StatusDisengage", "icon": "modules/combatdetails/icons/journey.png" }
+            ]
+        );
+
+        CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
+            return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0));
+        })
+
+        /*
+        let oldEffects = CONFIG.statusEffects;
+        let neweffects = [];
+        //$(CONFIG.statusEffects).each(function () { neweffects.push(this); });
+        for (let i = 0; i < CONFIG.statusEffects.length - 3; i++)
+            neweffects.push(CONFIG.statusEffects[i]);
+        $([
+            { "id": "charmed", "label": "COMBATDETAILS.StatusCharmed", "icon": "icons/svg/downgrade.svg" },
+            { "id": "exhausted", "label": "COMBATDETAILS.StatusExhausted", "icon": "icons/svg/target.svg" },
+            { "id": "grappled", "label": "COMBATDETAILS.StatusGrappled", "icon": "icons/svg/eye.svg" },
+            { "id": "incapacitated", "label": "COMBATDETAILS.StatusIncapacitated", "icon": "icons/svg/sun.svg" },
+            { "id": "invisible", "label": "COMBATDETAILS.StatusInvisible", "icon": "icons/svg/angel.svg" },
+            { "id": "petrified", "label": "COMBATDETAILS.StatusPetrified", "icon": "icons/svg/fire-shield.svg" },
+            { "id": "hasted", "label": "COMBATDETAILS.StatusHasted", "icon": "icons/svg/ice-shield.svg" },
+            { "id": "slowed", "label": "COMBATDETAILS.StatusSlowed", "icon": "icons/svg/mage-shield.svg" },
+            { "id": "concentrating", "label": "COMBATDETAILS.StatusConcentrating", "icon": "icons/svg/holy-shield.svg" }
+        ]).each(function () { neweffects.push(this); });
+        CONFIG.statusEffects = neweffects;
+        //CONFIG.statusEffects = [{ "id": "charmed", "label": "COMBATDETAILS.StatusCharmed", "icon": "icons/svg/downgrade.svg" }];
+        //CONFIG.statusEffects.push({ "id": "charmed", "label": "COMBATDETAILS.StatusCharmed", "icon": "icons/svg/downgrade.svg" });*/
+
+        /*
+         * .token-indicator[condition="blinded"]{background-image: url(../img/icons/blindfold.png);}
+.token-indicator[condition="charmed"]{background-image: url(../img/icons/smitten.png);}
+.token-indicator[condition="deafened"]{background-image: url(../img/icons/elf-ear.png);}
+.token-indicator[condition="exhaustion"]{background-image: url(../img/icons/oppression.png);}
+.token-indicator[condition="frightened"]{background-image: url(../img/icons/sharp-smile.png);}
+.token-indicator[condition="grappled"]{background-image: url(../img/icons/grab.png);}
+.token-indicator[condition="incapacitated"]{background-image: url(../img/icons/internal-injury.png);}
+.token-indicator[condition="invisible"]{background-image: url(../img/icons/invisible.png);}
+.token-indicator[condition="paralyzed"]{background-image: url(../img/icons/embrassed-energy.png);}
+.token-indicator[condition="petrified"]{background-image: url(../img/icons/stone-pile.png);}
+.token-indicator[condition="poisoned"]{background-image: url(../img/icons/deathcab.png);}
+.token-indicator[condition="prone"]{background-image: url(../img/icons/crawl.png);}
+.token-indicator[condition="restrained"]{background-image: url(../img/icons/imprisoned.png);}
+.token-indicator[condition="stunned"]{background-image: url(../img/icons/back-pain.png);}
+.token-indicator[condition="unconscious"]{background-image: url(../img/icons/coma.png);}
+.token-indicator[condition="rage"]{background-image: url(../img/icons/enrage.png);}
+.token-indicator[condition="concentration"]{background-image: url(../img/icons/beams-aura.png);}
+.token-indicator[condition="distracted"]{background-image: url(../img/icons/distraction.png);}
+.token-indicator[condition="dodging"]{background-image: url(../img/icons/dodging.png);}
+.token-indicator[condition="onfire"]{background-image: url(../img/icons/fire-silhouette.png);}
+.token-indicator[condition="frozen"]{background-image: url(../img/icons/frozen-orb.png);}
+.token-indicator[condition="disengage"]{background-image: url(../img/icons/journey.png);}
+.token-indicator[condition="silenced"]{background-image: url(../img/icons/silenced.png);}
+.token-indicator[condition="sleep"]{background-image: url(../img/icons/sleepy.png);}
+.token-indicator[condition="blessed"]{background-image: url(../img/icons/spiked-halo.png);}
+*/
+
+        //CONFIG.statusEffects.push({ "id": "charmed", "label": "COMBATDETAILS.StatusCharmed", "icon": "modules/conditions5e/icons/charmed.svg" });
+
         registerSettings();
+
+        let oldTokenHUDRender = TokenHUD.prototype._render;
+        TokenHUD.prototype._render = function (force = false, options = {}) {
+            let result = oldTokenHUDRender.call(this, force, options).then((a, b) => {
+                log('after render');
+                CombatDetails.alterHUD(CombatDetails.element);
+            });
+
+            return result;
+        }
     }
 
     static doDisplayTurn() {
@@ -85,10 +174,16 @@ class CombatDetails {
             if (nxtturn > curCombat.turns.length - 1) nxtturn = 0;
             let nxtentry = curCombat.turns[nxtturn];
 
+            //find the next one that hasn't been defeated
+            while (nxtentry.defeated && nxtturn != curCombat.turn) {
+                nxtturn++;
+                if (nxtturn > curCombat.turns.length - 1) nxtturn = 0;
+                nxtentry = curCombat.turns[nxtturn];
+            }
+
             if (entry !== undefined) {
                 let isActive = entry.actor?._id === game.users.current.character?._id;
-                let isNext =
-                nxtentry.actor?._id === game.users.current.character?._id;
+                let isNext = nxtentry.actor?._id === game.users.current.character?._id;
 
                 if (isActive) {
                     CombatDetails.doDisplayTurn();
@@ -113,8 +208,41 @@ class CombatDetails {
         $(app._element).css({ top: app.position.top, left: app.position.left });
     }
 
-    static alterHUD() {
-        
+    static alterHUD(html) {
+        $('.col.right .control-icon.effects .status-effects img', html).each(function () {
+            let div = $('<div>')
+                .addClass('effect-control')
+                .toggleClass('active', $(this).hasClass('active'))
+                .attr('title', $(this).attr('title'))
+                .attr('data-status-id', $(this).attr('data-status-id'))
+                .attr('src', $(this).attr('src'))
+                .insertAfter(this)
+                .append($(this).removeClass('effect-control'))
+                .append($('<div>').html($(this).attr('title')).click(function (event) {
+                    $(this).prev().click();
+                    if (event.stopPropagation) event.stopPropagation();
+                    if (event.preventDefault) event.preventDefault();
+                    event.cancelBubble = true;
+                    event.returnValue = false;
+                    return false;
+                }));
+            div[0].src = $(this).attr('src');
+        });
+        $('.col.right .control-icon.effects .status-effects', html).append(
+            $('<div>').addClass('clear-all').html('<i class="fas fa-times-circle"></i> clear all').click($.proxy(CombatDetails.clearAll, this, html))
+        );
+    }
+
+    static async clearAll(html) {
+        //find the tokenhud, get the TokenHUD.object  ...assuming it's a token?
+        let selectedEffects = $('.col.right .control-icon.effects .status-effects img.active', html);
+        for (let img of selectedEffects) {
+            const effect = (img.dataset.statusId && CombatDetails.tokenHUD.object.actor) ?
+                CONFIG.statusEffects.find(e => e.id === img.dataset.statusId) :
+                img.getAttribute("src");
+
+            await CombatDetails.tokenHUD.object.toggleEffect(effect);
+        };
     }
 }
 
@@ -173,7 +301,7 @@ Hooks.on("updateCombat", function (data, delta) {
   CombatDetails.checkCombatTurn();
 
 	log("update combat", data);
-	if(game.settings.get("combatdetails", "opencombat") && delta.round === 1 && delta.turn === 0){
+	if(game.settings.get("combatdetails", "opencombat") && delta.round === 1 && data.turn === 0 && data.started === true){
 		//new combat, pop it out
 		const tabApp = ui["combat"];
 		tabApp.renderPopout(tabApp);
@@ -201,7 +329,6 @@ Hooks.on("updateCombat", function (data, delta) {
 Hooks.on("ready", function () {
   //check if it's our turn! since we're ready
     CombatDetails.checkCombatTurn();
-    CombatDetails.alterHUD();
 });
 
 Hooks.on('renderCombatTracker', async (app, html, options) => {
@@ -219,15 +346,7 @@ Hooks.on('closeCombatTracker', async (app, html) => {
 });
 
 Hooks.on('renderTokenHUD', async (app, html, options) => {
+    CombatDetails.element = html;
+    CombatDetails.tokenHUD = app;
     $('.col.left .control-icon.target', html).insertBefore($('#token-hud .col.left .control-icon.config'));
-    $('.col.right .control-icon.effects .status-effects img', html).each(function () {
-        $('<div>')
-            .addClass('effect-control-label')
-            .html($(this).attr('title'))
-            .click(function () {
-                $(this).prev().click();
-            })
-            .insertAfter(this);
-
-    });
 });

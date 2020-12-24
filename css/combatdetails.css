@@ -18,21 +18,76 @@
 #token-hud .status-effects {
     top: -56px !important;
     width: unset;
-    grid-template-columns: 25px 100px 25px 100px 25px 100px 25px 100px !important;
+    grid-template-columns: 130px 130px 130px 130px !important;
     font-size: 16px;
     line-height: 24px;
     text-align: left;
+    background: rgba(0, 0, 0, 0.8);
 }
 
-#token-hud .status-effects .effect-control.active + .effect-control-label {
-    color: #FFF;
-}
-
-#token-hud .status-effects .effect-control:hover + .effect-control-label, #token-hud .status-effects .effect-control-label {
+#token-hud .status-effects .clear-all {
+    position: absolute;
+    bottom: 100%;
+    right: 5px;
     cursor: pointer;
-    color: #CCC;
+    color: #ccc;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    background: #333;
+    padding: 4px 8px;
 }
 
-#token-hud .status-effects .effect-control-label:hover {
+#token-hud .status-effects .clear-all:hover {
+    color: #d2d1d0;
+}
+
+#token-hud .status-effects div.effect-control {
+    width: 100%;
+    color: #ccc;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 1px;
+    border: 1px solid transparent;
+}
+
+#token-hud .status-effects div.effect-control:hover {
     color: #d2d1d0 !important;
+}
+
+#token-hud .status-effects div.effect-control.active {
+    color: #ff6400;
+    border: 1px solid #ff6400;
+}
+
+#token-hud .status-effects div.effect-control.active:hover {
+    color: #ffc163 !important;
+}
+
+#token-hud .status-effects .effect-control img {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    opacity: 0.5;
+    display: inline-block;
+}
+
+#token-hud .status-effects .effect-control:hover img {
+    opacity: 0.8;
+}
+
+#token-hud .status-effects .effect-control.active img {
+    opacity: 1;
+    filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
+}
+
+#token-hud .status-effects div.effect-control div {
+    vertical-align: top;
+    padding-left: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 24px);
+    display: inline-block;
 }

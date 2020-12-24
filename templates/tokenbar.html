@@ -1,0 +1,23 @@
+<div id="tokenbar" class="flexrow">
+    <div id="tokenbar-controls" class="bar-controls flexcol">
+        <a id="bar-toggle">
+            <i class="fas fa-caret-down"></i>
+        </a>
+        <a id="request-roll">
+            <i class="fas fa-folder"></i>
+        </a>
+    </div>
+    <nav id="token-action-bar" class="flexrow {{barClass}}">
+        <ol id="token-list" class="flexrow">
+            {{#each token}}
+            <li class="token {{this.cssClass}}" data-slot="{{this.slot}}"
+                {{#if this.token}}data-token-id="{{this.token._id}}"{{/if}}>
+                <span class="token-key">{{this.key}}</span>
+                {{#if this.icon}}
+                <img class="token-icon" src="{{this.icon}}"/>
+                {{/if}}
+            </li>
+            {{/each}}
+        </ol>
+    </nav>
+</div>

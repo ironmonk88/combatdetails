@@ -1,6 +1,6 @@
 {
-	"CombatDetails.Turn" : "It's your turn, what would you like to do?",
-	"CombatDetails.Next" : "Get ready, you're up next",
+	"CombatDetails.Turn": "It's your turn, what would you like to do?",
+	"CombatDetails.Next": "Get ready, you're up next",
 	"CombatDetails.ShowNextUp": "Show 'Next Up' notification",
 	"CombatDetails.ShowNextUpHint": "Show notification to the players that their turn is next",
 	"CombatDetails.Volume": "Volume",
@@ -8,5 +8,23 @@
 	"CombatDetails.Position": "Combat Dialog Position",
 	"CombatDetails.PositionHint": "Where to place the combat dialog when it opens, rather than the middle of the screen",
 	"CombatDetails.PopoutCombat": "Popout Combat Dialog",
-	"CombatDetails.PopoutCombatHint": "When starting a combat, popout the dialog, and switch to the chat window"
+	"CombatDetails.PopoutCombatHint": "When starting a combat, popout the dialog, and switch to the chat window",
+
+	"COMBATDETAILS.StatusCharmed": "Charmed",
+	"COMBATDETAILS.StatusExhausted": "Exhausted",
+	"COMBATDETAILS.StatusGrappled": "Grappled",
+	"COMBATDETAILS.StatusIncapacitated": "Incapacitated",
+	"COMBATDETAILS.StatusInvisible": "Invisible",
+	"COMBATDETAILS.StatusPetrified": "Petrified",
+	"COMBATDETAILS.StatusHasted": "Hasted",
+	"COMBATDETAILS.StatusSlowed": "Slowed",
+	"COMBATDETAILS.StatusConcentrating": "Concentrating",
+	"COMBATDETAILS.StatusRage": "Raging",
+	"COMBATDETAILS.StatusDistracted": "Distracted",
+	"COMBATDETAILS.StatusDodging": "Dodging",
+	"COMBATDETAILS.StatusDisengage": "Disengage",
+
+	"COMBATDETAILS.EditCharacter": "Edit Character",
+	"COMBATDETAILS.EditToken": "Edit Token",
+	"COMBATDETAILS.TargetToken": "Target Token"
 }
