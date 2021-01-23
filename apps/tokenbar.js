@@ -1,4 +1,10 @@
-class TokenBar extends Application {
+import { CombatDetails } from "../combatdetails.js";
+import { SavingThrowApp } from "../apps/savingthrow.js";
+import { ContestedRollApp } from "../apps/contestedroll.js";
+import { AssignXPApp } from "../apps/assignxp.js";
+import { log } from "../combatdetails.js";
+
+export class TokenBar extends Application {
 	constructor(options) {
 	    super(options);
 
@@ -15,6 +21,8 @@ class TokenBar extends Application {
             * @type {number|null}
             */
         this._hover = null;
+
+        //this.changeGlobalMovement("free");
     }
 
     /* -------------------------------------------- */
@@ -32,10 +40,10 @@ class TokenBar extends Application {
 
     /** @override */
 	getData(options) {
-	    this.tokens = this._getTokensByScene();
         return {
             tokens: this.tokens,
-            barClass: this._collapsed ? "collapsed" : ""
+            barClass: this._collapsed ? "collapsed" : "",
+            movement: game.settings.get("combatdetails", "movement")
         };
     }
 
@@ -45,8 +53,9 @@ class TokenBar extends Application {
 
     setPos() {
         let pos = $('#hotbar').position();
-        this.setPosition(pos.left, pos.top);
-        $(this.element).css({ left: pos.left, top: pos.top });
+        let width = $('#hotbar').width();
+        this.setPosition(pos.left + width + 4);
+        $(this.element).css({ left: pos.left + width + 4 });
 
         return this;
     }
@@ -59,21 +68,48 @@ class TokenBar extends Application {
     * @returns {Token[]}
     * @private
     */
-    _getTokensByScene(page) {
-        //get the current scene
-        let tokens = [];
-        //get the tokens that are owned by players
+    _getTokensByScene() {
+        let tokens = canvas.tokens.placeables.filter(t => {
+            return t.actor?.hasPlayerOwner && t.actor?.data.type != 'npc'
+        }).map(t => {
+            let actor = t.actor;
 
-        return tokens;
-        /*
-        const macros = game.user.getHotbarMacros(page);
-        for ( let [i, m] of macros.entries() ) {
-            m.key = i<9 ? i+1 : 0;
-            m.cssClass = m.macro ? "active" : "inactive";
-            m.icon = m.macro ? m.macro.data.img : null;
-        }
-        return macros;
-        */
+            let ac = 10
+            if (game.world.system === "pf1") {
+                ac = actor.data.data.attributes.ac.normal.total
+            } else {
+                ac = (isNaN(parseInt(actor.data.data.attributes.ac.value)) || parseInt(actor.data.data.attributes.ac.value) === 0) ? 10 : parseInt(actor.data.data.attributes.ac.value);
+            }
+
+            //let perceptionTitle = "Passive Perception";
+            let perception = 10;
+            if (game.world.system === "pf1") {
+                perception = actor.data.data.skills.per.mod
+                //perceptionTitle = "Perception Mod";
+            } else if (game.world.system === "pf2e") {
+                if (actor.data.type === "npc" || actor.data.type === "familiar") {
+                    perception = perception + actor.data.data.attributes.perception.value;
+                } else {
+                    const proficiency = actor.data.data.attributes.perception.rank ? actor.data.data.attributes.perception.rank * 2 + actor.data.data.details.level.value : 0;
+                    perception = perception + actor.data.data.abilities[actor.data.data.attributes.perception.ability].mod + proficiency + actor.data.data.attributes.perception.item;
+                }
+                //perceptionTitle = "Perception DC";
+            } else {
+                perception = actor.data.data.skills.prc.passive;
+            }
+
+            t.unsetFlag("combatdetails", "notified");
+
+            return {
+                id: t.id,
+                token: t,
+                icon: t.data.img,
+                ac: ac,
+                pp: perception
+            }
+        });
+
+        this.tokens = tokens;
     }
 
 	/* -------------------------------------------- */
@@ -84,9 +120,9 @@ class TokenBar extends Application {
     */
     async collapse() {
         if ( this._collapsed ) return true;
-        const toggle = this.element.find("#bar-toggle");
+        const toggle = this.element.find(".bar-toggle");
         const icon = toggle.children("i");
-        const bar = this.element.find("#action-bar");
+        const bar = this.element.find("#token-action-bar");
         return new Promise(resolve => {
             bar.slideUp(200, () => {
             bar.addClass("collapsed");
@@ -105,9 +141,9 @@ class TokenBar extends Application {
     */
     expand() {
         if ( !this._collapsed ) return true;
-        const toggle = this.element.find("#bar-toggle");
+        const toggle = this.element.find(".bar-toggle");
         const icon = toggle.children("i");
-        const bar = this.element.find("#action-bar");
+        const bar = this.element.find("#token-action-bar");
         return new Promise(resolve => {
             bar.slideDown(200, () => {
             bar.css("display", "");
@@ -130,7 +166,10 @@ class TokenBar extends Application {
         // Macro actions
         html.find('.bar-toggle').click(this._onToggleBar.bind(this));
         html.find(".request-roll").click(this._onRequestRoll.bind(this));
-        html.find(".token").click(this._onClickToken.bind(this)).hover(this._onHoverToken.bind(this));
+        html.find(".contested-roll").click(this._onContestedRoll.bind(this));
+        html.find(".assign-xp").click(this._onAssignXP.bind(this));
+        html.find(".token-movement").click(this._onChangeMovement.bind(this));
+        html.find(".token").click(this._onClickToken.bind(this)).dblclick(this._onDblClickToken.bind(this)).hover(this._onHoverToken.bind(this));
 
         // Activate context menu
         this._contextMenu(html);
@@ -150,36 +189,126 @@ class TokenBar extends Application {
                 icon: '<i class="fas fa-edit"></i>',
                 callback: li => {
                     log('Open character sheet');
+                    const entry = this.tokens.find(t => t.id === li[0].dataset.tokenId);
+                    if (entry.token.actor) entry.token.actor.sheet.render(true);
                 }
             },
             {
-                name: "COMBATEDETAILS.EditToken",
+                name: "COMBATDETAILS.EditToken",
                 icon: '<i class="fas fa-edit"></i>',
                 callback: li => {
                     log('Open token edit');
+                    const entry = this.tokens.find(t => t.id === li[0].dataset.tokenId);
+                    if (entry.token.actor) entry.token.sheet.render(true)
                 }
             },
             {
-                name: "COMBATEDETAILS.TargetToken",
+                name: "COMBATDETAILS.TargetToken",
                 icon: '<i class="fas fa-bullseye"></i>',
                 callback: li => {
                     log('Target token');
+                }
+            },
+            {
+                name: "COMBATDETAILS.FreeMovement",
+                icon: '<i class="fas fa-running"></i>',
+                callback: li => {
+                    const entry = this.tokens.find(t => t.id === li[0].dataset.tokenId);
+                    this.changeTokenMovement(entry, 'free');
+                }
+            },
+            {
+                name: "COMBATDETAILS.NoMovement",
+                icon: '<i class="fas fa-street-view"></i>',
+                callback: li => {
+                    const entry = this.tokens.find(t => t.id === li[0].dataset.tokenId);
+                    this.changeTokenMovement(entry, 'none');
+                }
+            },
+            {
+                name: "COMBATDETAILS.CombatTurn",
+                icon: '<i class="fas fa-fist-raised"></i>',
+                callback: li => {
+                    const entry = this.tokens.find(t => t.id === li[0].dataset.tokenId);
+                    this.changeTokenMovement(entry, 'combat');
                 }
             }
         ]);
     }
 
-    /* -------------------------------------------- */
-
-    /**
-    * Handle left-click events to
-    * @param event
-    * @private
-    */
     async _onRequestRoll(event) {
         event.preventDefault();
 
+        new SavingThrowApp().render(true);
+
         log('open request roll');
+    }
+
+    async _onContestedRoll(event) {
+        event.preventDefault();
+
+        this.contestedroll = new ContestedRollApp().render(true);
+
+        log('open contest roll');
+    }
+
+    async _onAssignXP(event) {
+        event.preventDefault();
+
+        new AssignXPApp().render(true);
+
+        log('open xp dialog');
+    }
+
+    async _onChangeMovement(event) {
+        event.preventDefault();
+
+        const btn = event.currentTarget;
+        this.changeGlobalMovement(btn.dataset.movement);
+    }
+
+    async changeGlobalMovement(movement) {
+        if (movement == 'combat' && (game.combat == undefined || !game.combat.started))
+            return;
+
+        await game.settings.set("combatdetails", "movement", movement);
+        //clear all the tokens individual movement settings
+        $(this.tokens).each(function () {
+            this.token.setFlag("combatdetails", "movement", null);
+            this.token.unsetFlag("combatdetails", "notified");
+        });
+        this.render(true);
+
+        this.displayNotification(movement);
+
+        log('change movement', this.movement);
+    }
+
+    async changeTokenMovement(entry, movement) {
+        let tMovement = (game.settings.get("combatdetails", "movement") != movement ? movement : null)
+        await entry.token.setFlag("combatdetails", "movement", tMovement);
+        entry.token.unsetFlag("combatdetails", "notified");
+        this.render(true);
+
+        this.displayNotification(tMovement, entry.token);
+    }
+
+    displayNotification(movement, token) {
+        if (game.settings.get("combatdetails", "notify-on-change")) {
+            let msg = (token != undefined ? token.name + ": " : "") + "Movement changed to " + (movement == "free" ? "Free Movement" : (movement == "none" ? "No Movement" : "Combat Turn"));
+            ui.notifications.warn(msg);
+            log('display notification');
+            game.socket.emit(
+                CombatDetails.SOCKET,
+                {
+                    msgtype: 'movementchange',
+                    senderId: game.user._id,
+                    msg: msg,
+                    tokenid: token?.id
+                },
+                (resp) => { }
+            );
+        }
     }
 
     /* -------------------------------------------- */
@@ -192,9 +321,20 @@ class TokenBar extends Application {
     async _onClickToken(event) {
         event.preventDefault();
         const li = event.currentTarget;
-        const token = game.currentScene.tokens.get(li.dataset.tokenId);
+        const entry = this.tokens.find(t => t.id === li.dataset.tokenId);
 
-        log('Center on token', token);
+        log('Center on token', entry, entry.token);
+        entry.token.control({ releaseOthers: true });
+        return canvas.animatePan({ x: entry.token.x, y: entry.token.y });
+    }
+
+    async _onDblClickToken(event) {
+        event.preventDefault();
+        const li = event.currentTarget;
+        const entry = this.tokens.find(t => t.id === li.dataset.tokenId);
+
+        if (entry.token.actor)
+            entry.token.actor.sheet.render(true);
     }
 
     /* -------------------------------------------- */
@@ -215,12 +355,12 @@ class TokenBar extends Application {
 
         // Handle hover-in
         if ( event.type === "mouseenter" ) {
-            this._hover = li.dataset.slot;
-            if ( hasAction ) {
-                const token = game.currentScene.tokens.get(li.dataset.tokenId);
+            this._hover = li.dataset.tokenId;
+            if (hasAction) {
+                const entry = this.tokens.find(t => t.id === li.dataset.tokenId);
                 const tooltip = document.createElement("SPAN");
                 tooltip.classList.add("tooltip");
-                    tooltip.textContent = token.name;
+                tooltip.textContent = entry.token.name;
                 li.appendChild(tooltip);
             }
         }
@@ -245,6 +385,48 @@ class TokenBar extends Application {
     }
 }
 
-Hooks.on('renderTokenBar', () => {
+Hooks.on('renderTokenBar', (app, html) => {
     CombatDetails.tokenbar.setPos().show();
+    //CombatDetails.tokenbar._getTokensByScene();
+    let gMovement = game.settings.get("combatdetails", "movement");
+    $('.token-movement[data-movement="' + gMovement + '"]', html).addClass('active');
+    $('.token-movement[data-movement="combat"]', html).toggleClass('disabled', game.combats.active?.started !== true);
+    $(app.tokens).each(function () {
+        let tMovement = this.token.getFlag("combatdetails", "movement");
+        if (tMovement != undefined && tMovement != gMovement) {
+            $('.token[data-token-id="' + this.id + '"] .movement-icon', html).attr('movement', tMovement);
+        }
+    });
+});
+
+Hooks.on("ready", () => {
+    if (game.user.isGM && game.settings.get("combatdetails", "show-token-bar")) {
+        CombatDetails.tokenbar = new TokenBar();
+        CombatDetails.tokenbar._getTokensByScene();
+        CombatDetails.tokenbar.render(true);
+    }
+});
+
+
+Hooks.on('canvasReady', () => {
+    //CombatDetails.tokenbar._getTokensByScene();
+    //$('.token-action-bar .token-list', CombatDetails.tokenbar.element).empty();
+    if (game.user.isGM && CombatDetails.tokenbar != undefined) {
+        CombatDetails.tokenbar._getTokensByScene();
+        CombatDetails.tokenbar.render(true);
+    }
+});
+
+Hooks.on("createToken", (token) => {
+    if (game.user.isGM && CombatDetails.tokenbar != undefined) {
+        CombatDetails.tokenbar._getTokensByScene();
+        CombatDetails.tokenbar.render(true);
+    }
+});
+
+Hooks.on("deleteToken", (token) => {
+    if (game.user.isGM && CombatDetails.tokenbar != undefined) {
+        CombatDetails.tokenbar._getTokensByScene();
+        CombatDetails.tokenbar.render(true);
+    }
 });

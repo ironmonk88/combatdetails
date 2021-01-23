@@ -1,3 +1,28 @@
+.sidebar-tab .directory-list .directory-item img {
+    object-fit: contain !important;
+}
+
+.filepicker .thumbs-list img {
+    object-fit: contain !important;
+}
+
+.sidebar-tab .directory-list .directory-item.scene {
+    position: relative;
+}
+
+.sidebar-tab .directory-list .directory-item.scene img {
+    flex: 1;
+    object-fit: cover !important;
+}
+
+.sidebar-tab .directory-list .directory-item.scene h4 {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    text-shadow: 1px 1px 3px #000;
+    color: #f0f0e0;
+}
+
 .control-icon.token-info-icon:empty {
     visibility: hidden;
 }
@@ -67,6 +92,7 @@
     width: 24px;
     height: 24px;
     margin: 0;
+    margin-top:-1px;
     padding: 0;
     border: none;
     opacity: 0.5;
@@ -91,3 +117,481 @@
     max-width: calc(100% - 24px);
     display: inline-block;
 }
+
+#tokenbar {
+    z-index: 65;
+    position: fixed;
+    bottom:10px;
+    height: 92px;
+    pointer-events: none;
+    flex-wrap: nowrap;
+}
+
+#tokenbar .bar-controls {
+    flex: 0 0 55px;
+    height: 100%;
+    margin: 0 2px;
+    text-align: center;
+    color: #c9c7b8;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #000;
+    box-shadow: 0 0 3px #444 inset;
+    border-radius: 3px;
+}
+
+#tokenbar .bar-controls > div > *{
+    line-height:30px;
+}
+
+#tokenbar .bar-controls .token-movement i {
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    width: 24px;
+    height: 24px;
+    padding-top: 4px;
+}
+
+#tokenbar .bar-controls .token-movement:not(.disabled).active i {
+    color: #bc8c4a;
+    border: 1px solid #ff6400;
+}
+
+#tokenbar .token-movement:not(.disabled):not(.active):hover {
+    filter: drop-shadow( 0 0 5px red);
+}
+
+#tokenbar .token-movement:not(.disabled).active:hover i {
+    color:#ffc163;
+}
+
+#tokenbar .token-movement.disabled {
+    opacity: 0.3;
+}
+#tokenbar .token-movement.disabled i{
+    cursor:default;
+}
+
+#tokenbar-controls {
+    pointer-events: all;
+}
+
+#token-action-bar {
+    flex: 1 1 auto;
+    height: 100%;
+    pointer-events: all;
+    flex-wrap: nowrap;
+}
+
+#token-action-bar.collapsed {
+    display: none;
+    pointer-events: none;
+}
+
+#tokenbar .token-list {
+    flex: 1 1 auto;
+    height: 100%;
+    list-style: none;
+    margin: 0 2px;
+    padding: 0;
+    border: 1px solid #000;
+    border-radius: 3px;
+    flex-wrap: nowrap;
+}
+
+#tokenbar .token-list:empty{
+    display:none;
+}
+
+#tokenbar .token {
+    position: relative;
+    flex: 0 0 50px;
+    width: 50px;
+    height: 90px;
+    border: 1px solid #000;
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 5px #000 inset;
+    cursor: pointer;
+}
+
+#tokenbar .token .token-details{
+    width:25px;
+}
+
+#tokenbar .token .token-ac,
+#tokenbar .token .token-pp {
+    position: relative;
+    width: 100%;
+    text-align: right;
+    padding: 1px 3px;
+    background: #111;
+    color: #f0f0e0;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+#tokenbar .token .token-ac i,
+#tokenbar .token .token-pp i{
+    position:absolute;
+    left:2px;
+    top:2px;
+}
+
+#tokenbar .token .token-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    object-position: 50% 50%;
+    border: none;
+}
+
+#tokenbar .token:hover .token-icon {
+    box-shadow: 0 0 10px #ff6400 inset;
+}
+
+#tokenbar .token.active:hover .token-icon {
+    border: 1px solid red;
+}
+
+#tokenbar .token .tooltip {
+    display: block;
+    min-width: 148px;
+    height: 26px;
+    padding: 2px 4px;
+    position: absolute;
+    top: -32px;
+    left: -50px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid #191813;
+    border-radius: 3px;
+    color: #f0f0e0;
+    line-height: 22px;
+    text-align: center;
+    white-space: nowrap;
+    word-break: break-all;
+}
+
+#tokenbar .token .context-items li:nth-child(4) {
+    border-top: 2px groove #444; /*#23221d;*/
+}
+
+#tokenbar .token .context-items li.selected {
+    color: #ffc163;
+}
+
+#tokenbar .token .movement-icon[movement] {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 40px;
+    left: 2px;
+    color: #ffc163;
+    filter: drop-shadow( 0 0 5px black);
+}
+
+#tokenbar .token .movement-icon[movement="free"] i:after {
+    content: "\f70c";
+}
+
+#tokenbar .token .movement-icon[movement="none"] i:after {
+    content: "\f21d";
+}
+
+#tokenbar .token .movement-icon[movement="combat"] i:after {
+    content: "\f6de";
+}
+
+#requestsavingthrow .dialog-buttons,
+#assignexperience .dialog-buttons {
+    flex: 0 0 32px;
+}
+
+#requestsavingthrow .items-list.inventory-list{
+    max-height:225px;
+}
+
+#assignexperience .item .item-image {
+    color: transparent;
+    font-size: 25px;
+    text-align: center;
+    line-height: 30px;
+}
+
+#assignexperience .item.disabled .item-image {
+    filter: grayscale(100%);
+    color:#808080;
+}
+
+#assignexperience .item .charxp{
+    text-align:center;
+}
+
+#assignexperience .item.disabled .charxp{
+    display:none;
+}
+
+.combatdetail-message.dnd5e.chat-card .card-header h3 {
+    flex: 2;
+}
+
+.combatdetail-message .dnd5e.sheet.actor .inventory-list .item-controls {
+    flex: 0 0 60px;
+    justify-content: flex-end;
+}
+
+.combatdetail-message.assignxp .dnd5e.sheet.actor .inventory-list .item-controls{
+    flex: 0 0 70px;
+}
+
+.combatdetail-message .dnd5e.sheet.actor .inventory-list .roll-controls {
+    flex: 0 0 90px;
+    justify-content: flex-end;
+}
+
+.combatdetail-message.contested-roll .dnd5e.sheet.actor .inventory-list .roll-controls {
+    flex: 0 0 60px;
+}
+
+.combatdetail-message .item-row {
+}
+
+.combatdetail-message .dnd5e.sheet .items-list li.item .item-name .item-image {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.combatdetail-message .dnd5e.sheet .items-list li.item .item-name .attribute-name{
+    font-size: 10px;
+}
+
+.combatdetail-message li.item .item-roll {
+    display: block;
+    width: 30px;
+    height: 48px;
+    flex: 0 0 30px;
+    background: url(../../../icons/svg/d20-grey.svg) no-repeat 50% 50%;
+    background-size: 32px;
+    margin: 0 0.5em;
+    transform: rotate(180deg);
+}
+
+.combatdetail-message li.item .item-roll:hover {
+    background-image: url(../../../icons/svg/d20-highlight.svg);
+    transform:none;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total {
+    flex: 1;
+    height: 24px;
+    margin-top: 3px;
+}
+
+.combatdetail-message.assignxp li.item .dice-roll .dice-total.assigned{
+    flex: 0 0 40px;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total .dice-result {
+    flex: 1;
+    order: 0;
+}
+
+.combatdetail-message.assignxp li.item .dice-roll .dice-total a {
+    font-size: 12px;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total a {
+    flex: 0 0 20px;
+    font-size: 14px;
+    color: #aaa;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total.xp-result {
+    flex: 0 1 auto;
+    padding: 0px 8px;
+}
+.combatdetail-message li.item .dice-roll a.add-xp {
+    flex: 0 0 50px;
+    text-align: center;
+    line-height: 30px;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total a.recommended {
+    text-shadow: 0 0 8px orange;
+    color: #888;
+}
+.combatdetail-message li.item .dice-roll .dice-total a.recommended:hover {
+    text-shadow: 0 0 8px red;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total a.result-passed.selected {
+    color: #468847;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total a.result-failed.selected {
+    color: #b94a48;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total .dice-text{
+    flex:1;
+    font-size:12px;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total .dice-text.passed {
+    color: #468847;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total .dice-text.failed {
+    color: #b94a48;
+}
+
+.combatdetail-message li.item .dice-roll .dice-total .dice-text:empty {
+    display: none;
+}
+
+/*
+.encounter-cr {
+    padding: 2px 4px;
+    display: inline-block;
+    font-size: 12px;
+    border: 1px solid #C0C0C0;
+    border-radius: 4px;
+    height: 24px;
+    line-height: 20px;
+    margin-left: 4px;
+    margin-top: 2px;
+    vertical-align: top;
+}*/
+
+.encounter-cr-row{
+    line-height:25px;
+}
+
+.encounter-cr {
+    display: inline-block;
+    padding: 2px 4px;
+    line-height: 16px;
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+    white-space: nowrap;
+    vertical-align: top;
+    background-color: #999;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    height: 25px;
+    flex: 0 0 120px;
+    text-align: center;
+    position: relative;
+    font-size: 16px;
+    font-weight: normal;
+    padding: 4px;
+    margin-left: 4px;
+}
+
+.encounter-cr[rating="easy"] {
+    background-color: #468847;
+}
+.encounter-cr[rating="average"] {
+    background-color: #3a87ad;
+}
+.encounter-cr[rating="challenging"] {
+    background-color: #f89406;
+}
+.encounter-cr[rating="hard"] {
+    background-color: #b94a48;
+}
+.encounter-cr[rating="epic"] {
+    background-color: #333333;
+}
+
+.encounter-cr-rating {
+    /*width: calc(100% - 8px);
+    position: absolute;
+    bottom: 1px;*/
+    line-height: 10px;
+    font-size: 10px;
+    text-align: center;
+}
+
+#chat-controls .button.confetti {
+    flex: 0;
+    font-size: 20px;
+    margin-left: 4px;
+}
+
+.background-palette {
+    height: 20px;
+    border-radius: 4px;
+    display: inline-block;
+    border: 1px solid #7a7971;
+    cursor: pointer;
+}
+
+.background-size {
+    position: absolute;
+    font-size: 10px;
+    margin-top: -10px !important;
+    margin-right: 5px !important;
+    color: #808080;
+}
+
+.background-size.width {
+    margin-right: 202px !important;
+}
+
+/*
+#hotbar .macro .tooltip{
+    z-index:30;
+}
+
+.hotbar-page {
+    position: fixed;
+    bottom: 70px;
+    width: 582px;
+    left: 220px;
+    transition: height 1s ease;
+    height: 260px;
+    z-index: 10;
+}
+.hotbar-page.opening {
+    overflow: hidden;
+}
+
+.hotbar-page.collapsed {
+    height: 0px;
+    overflow: hidden;
+}
+
+.hotbar-page .action-bar {
+    flex: 1;
+    height: 52px;
+    pointer-events: all;
+}
+
+.hotbar-page .macro-list {
+    flex: 0 0 502px;
+    height: 100%;
+    list-style: none;
+    margin: 0 2px;
+    padding: 0;
+    border: 1px solid #000;
+    border-radius: 3px;
+}
+
+.hotbar-page .macro-list.selected {
+    border: 1px solid red;
+}
+
+.hotbar-page .bar-controls {
+    cursor: pointer;
+}
+
+#hotbar .hotbar-page .bar-controls span.page-number,
+#hotbar .hotbar-page .bar-controls i {
+    line-height: 50px;
+}
+.hotbar-page .page-number:hover {
+    text-shadow: 0 0 8px red;
+}*/

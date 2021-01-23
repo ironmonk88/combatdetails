@@ -3,6 +3,8 @@
 	"CombatDetails.Next": "Get ready, you're up next",
 	"CombatDetails.ShowNextUp": "Show 'Next Up' notification",
 	"CombatDetails.ShowNextUpHint": "Show notification to the players that their turn is next",
+	"CombatDetails.ShowCurrentUp": "Show 'Your Turn' notification",
+	"CombatDetails.ShowCurrentUpHint": "Show notification who has the current turn",
 	"CombatDetails.Volume": "Volume",
 	"CombatDetails.VolumeHint": "Set the overall volume of the module",
 	"CombatDetails.Position": "Combat Dialog Position",
@@ -26,5 +28,15 @@
 
 	"COMBATDETAILS.EditCharacter": "Edit Character",
 	"COMBATDETAILS.EditToken": "Edit Token",
-	"COMBATDETAILS.TargetToken": "Target Token"
+	"COMBATDETAILS.TargetToken": "Target Token",
+
+	"COMBATDETAILS.easy": "Easy",
+	"COMBATDETAILS.average": "Average",
+	"COMBATDETAILS.challenging": "Challenging",
+	"COMBATDETAILS.hard": "Hard",
+	"COMBATDETAILS.epic": "Epic",
+
+	"COMBATDETAILS.FreeMovement": "Free Movement",
+	"COMBATDETAILS.NoMovement": "No Movement",
+	"COMBATDETAILS.CombatTurn": "Combat Turn"
 }

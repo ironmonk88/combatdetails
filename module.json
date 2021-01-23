@@ -15,9 +15,11 @@
 	"esmodules": [
 		"combatdetails.js",
 		"./apps/tokenbar.js",
+		"./apps/savingthrow.js",
+		"./apps/assignxp.js",
 		"settings.js"
 	],
-	"styles" : [ "css/combatdetails.css" ],
+	"styles": [ "css/combatdetails.css", "css/core-changes.css" ],
 	"packs": [],
 	"url" : "https://github.com/ironmonk88/combatdetails",
 	"download" : "https://github.com/ironmonk88/combatdetails/archive/1.0.5.zip",
